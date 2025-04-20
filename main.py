@@ -93,13 +93,16 @@ class TemplateForecaster(ForecastBot):
     ) -> str:
         prompt = clean_indents(
             f"""
-            You are an assistant to a superforecaster.
-            The superforecaster will give you a question they intend to forecast on.
-            To be a great assistant, you generate a concise but detailed rundown of the most relevant news, including if the question would resolve Yes or No based on current information.
-            You do not produce forecasts yourself.
 
-            Question:
-            {question}
+You are an assistant to a superforecaster.
+The superforecaster will give you a question they intend to forecast on.
+Your goal is to provide a concise but detailed research briefing based on prior trends and the *latest* available information.
+Focus on identifying and summarizing the most *critical* developments, events, and expert opinions directly relevant to the question's potential resolution.
+Structure your rundown clearly, perhaps using bullet points or distinct paragraphs for different key angles.
+Explicitly address how both long-term trends and the *current* information weighs towards a "Yes" or "No" resolution, citing the key pieces of information supporting that assessment.
+Do NOT produce a forecast yourself or assign probabilities. Stick to summarizing the current situation and its implications for the resolution as it stands now.
+
+The question is: {question}
             """
         )  # NOTE: The metac bot in Q1 put everything but the question in the system prompt.
         if use_open_router:
