@@ -65,20 +65,20 @@ class TemplateForecaster(ForecastBot):
         async with self._concurrency_limiter:
             research = ""
             if os.getenv("PERPLEXITY_API_KEY"):
-                research = await self._call_perplexity(question.question_text)
-            elif os.getenv("ASKNEWS_CLIENT_ID") and os.getenv("ASKNEWS_SECRET"):
-                research = await AskNewsSearcher().get_formatted_news_async(
+                research += await self._call_perplexity(question.question_text)
+            if os.getenv("ASKNEWS_CLIENT_ID") and os.getenv("ASKNEWS_SECRET"):
+                research += await AskNewsSearcher().get_formatted_news_async(
                     question.question_text
                 )
-            elif os.getenv("EXA_API_KEY"):
-                research = await self._call_exa_smart_searcher(
+            if os.getenv("EXA_API_KEY"):
+                research += await self._call_exa_smart_searcher(
                     question.question_text
                 )
-            elif os.getenv("OPENROUTER_API_KEY"):
-                research = await self._call_perplexity(
+            if os.getenv("OPENROUTER_API_KEY"):
+                research += await self._call_perplexity(
                     question.question_text, use_open_router=True
                 )
-            else:
+            if not research:
                 logger.warning(
                     f"No research provider found when processing question URL {question.page_url}. Will pass back empty string."
                 )
