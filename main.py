@@ -361,15 +361,15 @@ if __name__ == "__main__":
         publish_reports_to_metaculus=True,
         folder_to_save_reports_to=None,
         skip_previously_forecasted_questions=True,
-        # llms={  # choose your model names or GeneralLlm llms here, otherwise defaults will be chosen for you
-        #     "default": GeneralLlm(
-        #         model="metaculus/anthropic/claude-3-5-sonnet-20241022",
-        #         temperature=0.3,
-        #         timeout=40,
-        #         allowed_tries=2,
-        #     ),
-        #     "summarizer": "openai/gpt-4o-mini",
-        # },
+        llms={  # choose your model names or GeneralLlm llms here, otherwise defaults will be chosen for you
+            "default": GeneralLlm(
+               model="openrouter/google/gemini-2.5-pro-preview-03-25",
+               temperature=0.3,
+               timeout=40,
+               allowed_tries=2,
+             ),
+            # "summarizer": "openai/gpt-4o-mini",
+        },
     )
 
     if run_mode == "tournament":
