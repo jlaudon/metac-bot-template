@@ -2,6 +2,7 @@ import argparse
 import asyncio
 import logging
 import os
+import random
 from datetime import datetime
 from typing import Literal
 
@@ -172,7 +173,8 @@ The question is: {question}
             The last thing you write is your final answer as: "Probability: ZZ%", 0-100
             """
         )
-        reasoning = await self.get_llm("default", "llm").invoke(prompt)
+        model = _random_model()
+        reasoning = await self.get_llm(model, "llm").invoke(prompt)
         prediction: float = PredictionExtractor.extract_last_percentage_value(
             reasoning, max_prediction=1, min_prediction=0
         )
@@ -322,6 +324,9 @@ The question is: {question}
             )
         return upper_bound_message, lower_bound_message
 
+    def _random_model(self) -> str:
+        return "model" + str(random.randint(0,3))
+        
 
 if __name__ == "__main__":
     logging.basicConfig(
@@ -363,6 +368,30 @@ if __name__ == "__main__":
         skip_previously_forecasted_questions=True,
         llms={  # choose your model names or GeneralLlm llms here, otherwise defaults will be chosen for you
             "default": GeneralLlm(
+               model="openrouter/google/gemini-2.5-pro-preview-03-25",
+               temperature=0.3,
+               timeout=40,
+               allowed_tries=2,
+             ),
+            "model0": GeneralLlm(
+               model="openrouter/anthropic/claude-3.7-sonnet:thinking",
+               temperature=0.3,
+               timeout=40,
+               allowed_tries=2,
+             ),
+            "model1": GeneralLlm(
+               model="openrouter/openai/gpt-4.1",
+               temperature=0.3,
+               timeout=40,
+               allowed_tries=2,
+             ),
+            "model2": GeneralLlm(
+               model="openrouter/deepseek/deepseek-chat-v3-0324",
+               temperature=0.3,
+               timeout=40,
+               allowed_tries=2,
+             ),            
+            "model3": GeneralLlm(
                model="openrouter/google/gemini-2.5-pro-preview-03-25",
                temperature=0.3,
                timeout=40,
