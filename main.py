@@ -173,7 +173,7 @@ The question is: {question}
             The last thing you write is your final answer as: "Probability: ZZ%", 0-100
             """
         )
-        model = _random_model()
+        model = self._random_model()
         reasoning = await self.get_llm(model, "llm").invoke(prompt)
         prediction: float = PredictionExtractor.extract_last_percentage_value(
             reasoning, max_prediction=1, min_prediction=0
