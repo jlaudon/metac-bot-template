@@ -62,6 +62,15 @@ class TemplateForecaster(ForecastBot):
     _max_concurrent_questions = 2  # Set this to whatever works for your search-provider/ai-model rate limits
     _concurrency_limiter = asyncio.Semaphore(_max_concurrent_questions)
     _model_number = 0 # used to iterate through the models
+    _number_of_models = 5 # number of all models we are using
+    """
+    model0="openrouter/anthropic/claude-3.7-sonnet:thinking",
+    model1="openrouter/openai/gpt-4.1",
+    model2="openrouter/deepseek/deepseek-chat-v3-0324",
+    model3="openrouter/google/gemini-2.5-pro-preview-03-25",
+    model4="openrouter/google/gemini-2.5-flash-preview",
+    """
+
 
     async def run_research(self, question: MetaculusQuestion) -> str:
         async with self._concurrency_limiter:
@@ -327,11 +336,11 @@ The question is: {question}
         return upper_bound_message, lower_bound_message
 
     def _random_model(self) -> str:
-        return "model" + str(random.randint(0,3))
+        return "model" + str(random.randint(0,self._number_of_models-1))
 
     def _next_model(self) -> str:
         _model_name = "model" + str(self._model_number)
-        self._model_number = (self._model_number + 1) % 4
+        self._model_number = (self._model_number + 1) % self._number_of_models
         return _model_name
         
 
@@ -404,7 +413,12 @@ if __name__ == "__main__":
                timeout=40,
                allowed_tries=2,
              ),
-            # "summarizer": "openai/gpt-4o-mini",
+            "model4": GeneralLlm(
+               model="openrouter/google/gemini-2.5-flash-preview",
+               temperature=0.3,
+               timeout=40,
+               allowed_tries=2,
+             ),            # "summarizer": "openai/gpt-4o-mini",
         },
     )
 
