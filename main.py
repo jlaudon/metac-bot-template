@@ -61,6 +61,7 @@ class TemplateForecaster(ForecastBot):
 
     _max_concurrent_questions = 2  # Set this to whatever works for your search-provider/ai-model rate limits
     _concurrency_limiter = asyncio.Semaphore(_max_concurrent_questions)
+    _model_number = 0 # used to iterate through the models
 
     async def run_research(self, question: MetaculusQuestion) -> str:
         async with self._concurrency_limiter:
@@ -173,7 +174,8 @@ The question is: {question}
             The last thing you write is your final answer as: "Probability: ZZ%", 0-100
             """
         )
-        model = self._random_model()
+        model = self._next_model()
+        # model = self._random_model()
         reasoning = await self.get_llm(model, "llm").invoke(prompt)
         prediction: float = PredictionExtractor.extract_last_percentage_value(
             reasoning, max_prediction=1, min_prediction=0
@@ -326,6 +328,11 @@ The question is: {question}
 
     def _random_model(self) -> str:
         return "model" + str(random.randint(0,3))
+
+    def _next_model(self) -> str:
+        _model_name = "model" + str(self._model_number)
+        self._model_number = (self._model_number + 1) % 4
+        return _model_name
         
 
 if __name__ == "__main__":
