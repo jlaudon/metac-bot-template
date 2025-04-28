@@ -236,7 +236,8 @@ The question is: {question}
             Option_N: Probability_N
             """
         )
-        reasoning = await self.get_llm("default", "llm").invoke(prompt)
+        model = self._next_model()
+        reasoning = await self.get_llm(model, "llm").invoke(prompt)
         prediction: PredictedOptionList = (
             PredictionExtractor.extract_option_list_with_percentage_afterwards(
                 reasoning, question.options
@@ -305,7 +306,8 @@ The question is: {question}
             "
             """
         )
-        reasoning = await self.get_llm("default", "llm").invoke(prompt)
+        model = self._next_model()
+        reasoning = await self.get_llm(model, "llm").invoke(prompt)
         prediction: NumericDistribution = (
             PredictionExtractor.extract_numeric_distribution_from_list_of_percentile_number_and_probability(
                 reasoning, question
