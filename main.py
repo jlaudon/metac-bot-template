@@ -416,11 +416,18 @@ if __name__ == "__main__":
                allowed_tries=2,
              ),
             "model4": GeneralLlm(
+               model="openrouter/x-ai/grok-3-beta",
+               temperature=0.3,
+               timeout=40,
+               allowed_tries=2,
+             ),
+            "model5": GeneralLlm(
                model="openrouter/google/gemini-2.5-flash-preview",
                temperature=0.3,
                timeout=40,
                allowed_tries=2,
-             ),            # "summarizer": "openai/gpt-4o-mini",
+             ),
+            # "summarizer": "openai/gpt-4o-mini",
         },
     )
 
