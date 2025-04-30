@@ -113,7 +113,7 @@ Structure your rundown clearly, perhaps using bullet points or distinct paragrap
 Explicitly address how both long-term trends and the *current* information weighs towards a "Yes" or "No" resolution, citing the key pieces of information supporting that assessment.
 Do NOT produce a forecast yourself or assign probabilities. Stick to summarizing the current situation and its implications for the resolution as it stands now.
 
-The question is: {question}
+The question from the superforecaster is: {question}
             """
         )  # NOTE: The metac bot in Q1 put everything but the question in the system prompt.
         if use_open_router:
@@ -167,7 +167,7 @@ The question is: {question}
             {question.fine_print}
 
 
-            Your research assistant says:
+            Your research assistant is providing you with the following research report:
             {research}
 
             Today is {datetime.now().strftime("%Y-%m-%d")}.
@@ -217,7 +217,7 @@ The question is: {question}
             {question.fine_print}
 
 
-            Your research assistant says:
+            Your research assistant is providing you with the following research report:
             {research}
 
             Today is {datetime.now().strftime("%Y-%m-%d")}.
