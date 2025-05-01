@@ -185,7 +185,9 @@ The question from the superforecaster is: {question}
         )
         model = self._next_model()
         # model = self._random_model()
-        reasoning = await self.get_llm(model, "llm").invoke(prompt)
+        reasoning = f"""{model} gives the following reasoning.
+        """
+        reasoning += await self.get_llm(model, "llm").invoke(prompt)
         prediction: float = PredictionExtractor.extract_last_percentage_value(
             reasoning, max_prediction=1, min_prediction=0
         )
