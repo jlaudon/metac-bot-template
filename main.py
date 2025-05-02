@@ -394,7 +394,7 @@ if __name__ == "__main__":
                allowed_tries=2,
              ),
             "model0": GeneralLlm(
-               model="openrouter/anthropic/claude-3.7-sonnet:thinking",
+               model="openrouter/anthropic/claude-3.7-sonnet",
                temperature=0.3,
                timeout=40,
                allowed_tries=2,
