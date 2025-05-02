@@ -64,11 +64,12 @@ class TemplateForecaster(ForecastBot):
     _model_number = 0 # used to iterate through the models
     _number_of_models = 5 # number of all models we are using
     """
-    model0="openrouter/anthropic/claude-3.7-sonnet:thinking",
+    model0="openrouter/anthropic/claude-3.7-sonnet",
     model1="openrouter/openai/gpt-4.1",
     model2="openrouter/deepseek/deepseek-chat-v3-0324",
     model3="openrouter/google/gemini-2.5-pro-preview-03-25",
-    model4="openrouter/google/gemini-2.5-flash-preview",
+    model4="openrouter/x-ai/grok-3-beta",
+    model5="openrouter/google/gemini-2.5-flash-preview",
     """
 
 
