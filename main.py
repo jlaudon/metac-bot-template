@@ -150,18 +150,18 @@ The question from the superforecaster is: {question}
         return response
     
     async def _get_reasoning(self, prompt) -> str:
-        cache_reasoning = False
+        """cache_reasoning = False
         if (self._model_number == 0):
             if self._cached_reasoning:
                 return "cached " + self._cached_reasoning
             else:
-                cache_reasoning = True
+                cache_reasoning = True"""
         model = self.next_model()
         reasoning = f"""{model} gives the following reasoning.
         """
         reasoning += await self.get_llm(model, "llm").invoke(prompt)
-        if cache_reasoning:
-            self._cached_reasoning = reasoning
+        """if cache_reasoning:
+            self._cached_reasoning = reasoning"""
         return reasoning 
         
     def _random_model(self) -> str:
