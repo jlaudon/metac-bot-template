@@ -430,7 +430,7 @@ if __name__ == "__main__":
                timeout=40,
                allowed_tries=2,
              ),
-            "model1": GeneralLlm(
+            "model4": GeneralLlm(
                model="openrouter/openai/gpt-4.1",
                temperature=0.3,
                timeout=40,
