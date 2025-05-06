@@ -156,7 +156,7 @@ The question from the superforecaster is: {question}
                 return "cached " + self._cached_reasoning
             else:
                 cache_reasoning = True"""
-        model = self.next_model()
+        model = self._next_model()
         reasoning = f"""{model} gives the following reasoning.
         """
         reasoning += await self.get_llm(model, "llm").invoke(prompt)
@@ -208,7 +208,7 @@ The question from the superforecaster is: {question}
             The last thing you write is your final answer as: "Probability: ZZ%", 0-100
             """
         )
-        model = self.next_model()
+        model = self._next_model()
         reasoning = f"""{model} gives the following reasoning.
         """
         reasoning += await self.get_llm(model, "llm").invoke(prompt)
@@ -262,7 +262,7 @@ The question from the superforecaster is: {question}
             Option_N: Probability_N
             """
         )
-        model = self.next_model()
+        model = self._next_model()
         reasoning = await self.get_llm(model, "llm").invoke(prompt)
         prediction: PredictedOptionList = (
             PredictionExtractor.extract_option_list_with_percentage_afterwards(
@@ -332,7 +332,7 @@ The question from the superforecaster is: {question}
             "
             """
         )
-        model = self.next_model()
+        model = self._next_model()
         reasoning = await self.get_llm(model, "llm").invoke(prompt)
         prediction: NumericDistribution = (
             PredictionExtractor.extract_numeric_distribution_from_list_of_percentile_number_and_probability(
