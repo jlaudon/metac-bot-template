@@ -62,13 +62,15 @@ class TemplateForecaster(ForecastBot):
     _max_concurrent_questions = 2  # Set this to whatever works for your search-provider/ai-model rate limits
     _concurrency_limiter = asyncio.Semaphore(_max_concurrent_questions)
     _model_number = 0 # used to iterate through the models
-    _number_of_models = 5 # number of all models we are using
+    _number_of_models = 4 # number of all models we are calling
+    _repeat_model0 = true
+    _cached_model0_reasoning = ""
     """
-    model0="openrouter/anthropic/claude-3.7-sonnet",
-    model1="openrouter/openai/gpt-4.1",
+    model0="openrouter/google/gemini-2.5-pro-preview-03-25",
+    model1="openrouter/anthropic/claude-3.7-sonnet",
     model2="openrouter/deepseek/deepseek-chat-v3-0324",
-    model3="openrouter/google/gemini-2.5-pro-preview-03-25",
-    model4="openrouter/x-ai/grok-3-beta",
+    model3="openrouter/x-ai/grok-3-beta",
+    model4="openrouter/openai/gpt-4.1",
     model5="openrouter/google/gemini-2.5-flash-preview",
     """
 
@@ -147,7 +149,30 @@ The question from the superforecaster is: {question}
         )  # You can ask the searcher to filter by date, exclude/include a domain, and run specific searches for finding sources vs finding highlights within a source
         response = await searcher.invoke(prompt)
         return response
+    
+    def _get_reasoning(self, prompt) -> str:
+        cache_reasoning = False
+        if (self._model_number == 0):
+            if self._cached_reasoning:
+                return "cached " + self._cached_reasoning
+            else:
+                cache_reasoning = True
+        model = self.next_model()
+        reasoning = f"""{model} gives the following reasoning.
+        """
+        reasoning += await self.get_llm(model, "llm").invoke(prompt)
+        if cache_reasoning:
+            self._cached_reasoning = reasoning
+        return reasoning 
+        
+    def _random_model(self) -> str:
+        return "model" + str(random.randint(0,self._number_of_models-1))
 
+    def _next_model(self) -> str:
+        _model_name = "model" + str(self._model_number)
+        self._model_number = (self._model_number + 1) % self._number_of_models
+        return _model_name
+        
     async def _run_forecast_on_binary(
         self, question: BinaryQuestion, research: str
     ) -> ReasonedPrediction[float]:
@@ -184,11 +209,7 @@ The question from the superforecaster is: {question}
             The last thing you write is your final answer as: "Probability: ZZ%", 0-100
             """
         )
-        model = self._next_model()
-        # model = self._random_model()
-        reasoning = f"""{model} gives the following reasoning.
-        """
-        reasoning += await self.get_llm(model, "llm").invoke(prompt)
+        reasoning = self._get_reasoning(prompt)
         prediction: float = PredictionExtractor.extract_last_percentage_value(
             reasoning, max_prediction=1, min_prediction=0
         )
@@ -239,8 +260,7 @@ The question from the superforecaster is: {question}
             Option_N: Probability_N
             """
         )
-        model = self._next_model()
-        reasoning = await self.get_llm(model, "llm").invoke(prompt)
+        reasoning = self._get_reasoning(prompt)
         prediction: PredictedOptionList = (
             PredictionExtractor.extract_option_list_with_percentage_afterwards(
                 reasoning, question.options
@@ -309,8 +329,7 @@ The question from the superforecaster is: {question}
             "
             """
         )
-        model = self._next_model()
-        reasoning = await self.get_llm(model, "llm").invoke(prompt)
+        reasoning = self._get_reasoning(prompt)
         prediction: NumericDistribution = (
             PredictionExtractor.extract_numeric_distribution_from_list_of_percentile_number_and_probability(
                 reasoning, question
@@ -340,13 +359,7 @@ The question from the superforecaster is: {question}
             )
         return upper_bound_message, lower_bound_message
 
-    def _random_model(self) -> str:
-        return "model" + str(random.randint(0,self._number_of_models-1))
 
-    def _next_model(self) -> str:
-        _model_name = "model" + str(self._model_number)
-        self._model_number = (self._model_number + 1) % self._number_of_models
-        return _model_name
         
 
 if __name__ == "__main__":
@@ -395,13 +408,13 @@ if __name__ == "__main__":
                allowed_tries=2,
              ),
             "model0": GeneralLlm(
-               model="openrouter/anthropic/claude-3.7-sonnet",
+               model="openrouter/google/gemini-2.5-pro-preview-03-25",
                temperature=0.3,
                timeout=40,
                allowed_tries=2,
              ),
             "model1": GeneralLlm(
-               model="openrouter/openai/gpt-4.1",
+               model="openrouter/anthropic/claude-3.7-sonnet",
                temperature=0.3,
                timeout=40,
                allowed_tries=2,
@@ -413,13 +426,13 @@ if __name__ == "__main__":
                allowed_tries=2,
              ),            
             "model3": GeneralLlm(
-               model="openrouter/google/gemini-2.5-pro-preview-03-25",
+               model="openrouter/x-ai/grok-3-beta",
                temperature=0.3,
                timeout=40,
                allowed_tries=2,
              ),
-            "model4": GeneralLlm(
-               model="openrouter/x-ai/grok-3-beta",
+            "model1": GeneralLlm(
+               model="openrouter/openai/gpt-4.1",
                temperature=0.3,
                timeout=40,
                allowed_tries=2,
