@@ -150,7 +150,7 @@ The question from the superforecaster is: {question}
         response = await searcher.invoke(prompt)
         return response
     
-    def _get_reasoning(self, prompt) -> str:
+    async def _get_reasoning(self, prompt) -> str:
         cache_reasoning = False
         if (self._model_number == 0):
             if self._cached_reasoning:
