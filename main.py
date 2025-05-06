@@ -63,8 +63,7 @@ class TemplateForecaster(ForecastBot):
     _concurrency_limiter = asyncio.Semaphore(_max_concurrent_questions)
     _model_number = 0 # used to iterate through the models
     _number_of_models = 4 # number of all models we are calling
-    _repeat_model0 = true
-    _cached_model0_reasoning = ""
+    _cached_model0_reasoning = "" # cache model0 results for all calls > number of models
     """
     model0="openrouter/google/gemini-2.5-pro-preview-03-25",
     model1="openrouter/anthropic/claude-3.7-sonnet",
