@@ -208,10 +208,11 @@ The question from the superforecaster is: {question}
             The last thing you write is your final answer as: "Probability: ZZ%", 0-100
             """
         )
-        model = self._next_model()
-        reasoning = f"""{model} gives the following reasoning.
-        """
-        reasoning += await self.get_llm(model, "llm").invoke(prompt)
+        reasoning = self._get_reasoning(prompt)
+        # model = self._next_model()
+        # reasoning = f"""{model} gives the following reasoning.
+        # """
+        # reasoning += await self.get_llm(model, "llm").invoke(prompt)
         prediction: float = PredictionExtractor.extract_last_percentage_value(
             reasoning, max_prediction=1, min_prediction=0
         )
