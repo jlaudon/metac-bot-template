@@ -208,7 +208,10 @@ The question from the superforecaster is: {question}
             The last thing you write is your final answer as: "Probability: ZZ%", 0-100
             """
         )
-        reasoning = self._get_reasoning(prompt)
+        model = self.next_model()
+        reasoning = f"""{model} gives the following reasoning.
+        """
+        reasoning += await self.get_llm(model, "llm").invoke(prompt)
         prediction: float = PredictionExtractor.extract_last_percentage_value(
             reasoning, max_prediction=1, min_prediction=0
         )
@@ -259,7 +262,10 @@ The question from the superforecaster is: {question}
             Option_N: Probability_N
             """
         )
-        reasoning = self._get_reasoning(prompt)
+        model = self.next_model()
+        reasoning = f"""{model} gives the following reasoning.
+        """
+        reasoning += await self.get_llm(model, "llm").invoke(prompt)
         prediction: PredictedOptionList = (
             PredictionExtractor.extract_option_list_with_percentage_afterwards(
                 reasoning, question.options
@@ -328,7 +334,10 @@ The question from the superforecaster is: {question}
             "
             """
         )
-        reasoning = self._get_reasoning(prompt)
+        model = self.next_model()
+        reasoning = f"""{model} gives the following reasoning.
+        """
+        reasoning += await self.get_llm(model, "llm").invoke(prompt)
         prediction: NumericDistribution = (
             PredictionExtractor.extract_numeric_distribution_from_list_of_percentile_number_and_probability(
                 reasoning, question
