@@ -485,8 +485,8 @@ if __name__ == "__main__":
                allowed_tries=2,
              ),
             "summarizer": "openai/gpt-4o-mini",
-            "researcher": "asknews/deep-research/medium-depth",
-            # "researcher" = "openrouter/perplexity/sonar-reasoning"
+            # "researcher": "asknews/deep-research/medium-depth",
+            "researcher" = "openrouter/perplexity/sonar-reasoning"
             "parser": "openai/gpt-4o-mini",
         },
     )
