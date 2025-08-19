@@ -73,8 +73,8 @@ class FallTemplateBot2025(ForecastBot):
                 allowed_tries=2,
             ),
             "summarizer": "openai/gpt-4o-mini",
-            "researcher": "asknews/deep-research/low",
-            # "researcher" = "openrouter/perplexity/sonar-reasoning"
+            # "researcher": "asknews/deep-research/low",
+            "researcher" = "openrouter/perplexity/sonar-reasoning"
             "parser": "openai/gpt-4o-mini",
         },
     )
