@@ -484,10 +484,12 @@ if __name__ == "__main__":
                timeout=40,
                allowed_tries=2,
              ),
-            "summarizer": "openai/gpt-4o-mini",
+            # "summarizer": "openai/gpt-4o-mini",
+            "summarizer": "openrouter/moonshotai/kimi-k2:free",
             # "researcher": "asknews/deep-research/medium-depth",
             "researcher": "openrouter/perplexity/sonar-reasoning",
-            "parser": "openai/gpt-4o-mini",
+            # "parser": "openai/gpt-4o-mini",
+            "parser": "openrouter/google/gemini-2.0-flash-exp:free",
         },
     )
 
