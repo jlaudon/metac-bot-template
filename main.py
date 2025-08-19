@@ -490,7 +490,8 @@ if __name__ == "__main__":
             # "researcher": "asknews/deep-research/medium-depth",
             # "researcher": "openrouter/perplexity/sonar-reasoning",
             # "researcher": "asknews/news-summaries",
-            "researcher": "openrouter/moonshotai/kimi-k2:free"
+            "researcher": "openrouter/moonshotai/kimi-k2:free",
+            # "researcher": "openrouter/deepseek/deepseek-r1-0528:free",
             # "parser": "openai/gpt-4o-mini",
             "parser": "openrouter/google/gemini-2.0-flash-exp:free",
         },
