@@ -1,9 +1,23 @@
-import argparse
 import asyncio
+from typing import List, Dict
+import sys
+import os
+
+import json
+from aiohttp import ClientSession, ClientTimeout
+from asknews_sdk import AskNewsSDK
+import aiohttp
+import argparse
 import logging
+import re
 import random
 from datetime import datetime
 from typing import Literal
+import time
+import traceback
+
+ASKNEWS_CLIENT_ID = os.getenv("ASKNEWS_CLIENT_ID")
+ASKNEWS_SECRET = os.getenv("ASKNEWS_SECRET")
 
 from forecasting_tools import (
     AskNewsSearcher,
@@ -26,6 +40,8 @@ from forecasting_tools import (
 
 logger = logging.getLogger(__name__)
 
+def write(x):
+    print(x)
 
 class FallTemplateBot2025(ForecastBot):
     """
@@ -104,12 +120,11 @@ class FallTemplateBot2025(ForecastBot):
     """
 
     _max_concurrent_questions = (
-        2  # Set this to whatever works for your search-provider/ai-model rate limits
+        1  # Set this to whatever works for your search-provider/ai-model rate limits
     )
     _concurrency_limiter = asyncio.Semaphore(_max_concurrent_questions)
     _model_number = 0 # used to iterate through the models
     _number_of_models = 4 # number of all models we are calling
-    _cached_model0_reasoning = "" # cache model0 results for all calls > number of models
     """
     model0="openrouter/google/gemini-2.5-pro-preview-03-25",
     model1="openrouter/anthropic/claude-3.7-sonnet",
@@ -119,7 +134,70 @@ class FallTemplateBot2025(ForecastBot):
     model5="openrouter/google/gemini-2.5-flash-preview",
     """
 
+    async def call_asknews_latest(self, question: str) -> str:
+      """
+      Use the AskNews `news` endpoint to get news context for your query.
+      The full API reference can be found here: https://docs.asknews.app/en/reference#get-/v1/news/search
+      """
+      try:
+          ask = AskNewsSDK(
+              client_id=ASKNEWS_CLIENT_ID, client_secret=ASKNEWS_SECRET, scopes=set(["news"])
+          )
 
+          async with aiohttp.ClientSession() as session:
+              # Create tasks for both API calls
+              hot_task = asyncio.create_task(asyncio.to_thread(ask.news.search_news,
+                  query=question,
+                  n_articles=8,
+                  return_type="both",
+                  strategy="latest news"
+              ))
+              hot_response = await asyncio.gather(hot_task)
+
+#          async with aiohttp.ClientSession() as session:
+#              historical_task = asyncio.create_task(asyncio.to_thread(ask.news.search_news,
+#                  query=question,
+#                  n_articles=8,
+#                  return_type="string",
+#                  strategy="news knowledge"
+#              ))
+#
+#              # Wait for both tasks to complete
+#              historical_response = await asyncio.gather(historical_task)
+
+          # historical_articles = historical_response.as_dicts
+          historical_articles = None
+          formatted_articles = "Here are the relevant news articles:\n\n"
+          for response in hot_response:
+            hot_articles = response.as_dicts
+
+            if hot_articles:
+              hot_articles = [article.__dict__ for article in hot_articles]
+              hot_articles = sorted(hot_articles, key=lambda x: x["pub_date"], reverse=True)
+
+              for article in hot_articles:
+                  pub_date = article["pub_date"].strftime("%B %d, %Y %I:%M %p")
+                  formatted_articles += f"**{article['eng_title']}**\n{article['summary']}\nOriginal language: {article['language']}\nPublish date: {pub_date}\nSource:[{article['source_id']}]({article['article_url']})\n\n"
+
+          if historical_articles:
+              historical_articles = [article.__dict__ for article in historical_articles]
+              historical_articles = sorted(
+                  historical_articles, key=lambda x: x["pub_date"], reverse=True
+              )
+
+              for article in historical_articles:
+                  pub_date = article["pub_date"].strftime("%B %d, %Y %I:%M %p")
+                  formatted_articles += f"**{article['eng_title']}**\n{article['summary']}\nOriginal language: {article['language']}\nPublish date: {pub_date}\nSource:[{article['source_id']}]({article['article_url']})\n\n"
+
+          if not hot_articles and not historical_articles:
+              formatted_articles += "No articles were found.\n\n"
+              return formatted_articles
+
+          return formatted_articles
+      except Exception as e:
+          write(f"[call_asknews] Error: {str(e)}")
+          return f"Error retrieving news articles: {str(e)}"
+    
     async def run_research(self, question: MetaculusQuestion) -> str:
         async with self._concurrency_limiter:
             research = ""
@@ -147,9 +225,10 @@ The question from the superforecaster is: {question.question_text}
             if isinstance(researcher, GeneralLlm):
                 research = await researcher.invoke(prompt)
             elif researcher == "asknews/news-summaries":
-                research = await AskNewsSearcher().get_formatted_news_async(
-                    question.question_text
-                )
+                research = await self.call_asknews_latest(question.question_text)
+                #research = await AskNewsSearcher().get_formatted_news_async(
+                #    question.question_text
+                #)
             elif researcher == "asknews/deep-research/medium-depth":
                 research = await AskNewsSearcher().get_formatted_deep_research(
                     question.question_text,
@@ -189,6 +268,36 @@ The question from the superforecaster is: {question.question_text}
         self._model_number = (self._model_number + 1) % self._number_of_models
         return _model_name
         
+    async def summarize_research(
+        self, question: MetaculusQuestion, research: str
+    ) -> str:
+        if not self.enable_summarize_research:
+            return "Summarize research was disabled for this run"
+
+        try:
+            logger.info(f"Summarizing research for question: {question.page_url}")
+            model = self.get_llm("summarizer", "llm")
+            prompt = clean_indents(
+                f"""
+                Please summarize the following research in 3-4 paragraphs. The research tries to help answer the following question:
+                {question.question_text}
+
+                Only summarize the research. Do not answer the question. Just say what the research says w/o any opinions added.
+                At the end mention what websites/sources were used (and copy links verbatim if possible)
+
+                The research is:
+                {research}
+                """
+            )
+            summary = await model.invoke(prompt)
+            logger.info(f"Summary for URL {question.page_url}: {summary}")
+            return summary
+        except Exception as e:
+            if self.use_research_summary_to_forecast:
+                raise e  # If the summary is needed for research, then returning the normal error message as the research will confuse the AI
+            logger.warning(f"Could not summarize research. {e}")
+            return f"{e.__class__.__name__} exception while summarizing research"
+
     async def _run_forecast_on_binary(
         self, question: BinaryQuestion, research: str
     ) -> ReasonedPrediction[float]:
@@ -227,7 +336,7 @@ The question from the superforecaster is: {question.question_text}
         )
         model = self._next_model()
         reasoning = await self.get_llm(model, "llm").invoke(prompt)
-        logger.info(f"Reasoning for URL {question.page_url}: {reasoning}")
+        logger.info(f"Reasoning by {model} for URL {question.page_url}: {reasoning}")
         binary_prediction: BinaryPrediction = await structure_output(
             reasoning, BinaryPrediction, model=self.get_llm("parser", "llm")
         )
@@ -432,6 +541,7 @@ if __name__ == "__main__":
         research_reports_per_question=1,
         predictions_per_research_report=5,
         use_research_summary_to_forecast=False,
+        enable_summarize_research=False,
         publish_reports_to_metaculus=True,
         folder_to_save_reports_to=None,
         skip_previously_forecasted_questions=True,
@@ -489,11 +599,13 @@ if __name__ == "__main__":
             "summarizer": "openrouter/qwen/qwen3-235b-a22b:free",
             # "researcher": "asknews/deep-research/medium-depth",
             # "researcher": "openrouter/perplexity/sonar-reasoning",
-            # "researcher": "asknews/news-summaries",
-            "researcher": "openrouter/moonshotai/kimi-k2:free",
+            "researcher": "asknews/news-summaries",
+            # "researcher": "openrouter/moonshotai/kimi-k2:free",
             # "researcher": "openrouter/deepseek/deepseek-r1-0528:free",
             # "parser": "openai/gpt-4o-mini",
-            "parser": "openrouter/google/gemini-2.0-flash-exp:free",
+            # "parser": "openrouter/google/gemini-2.0-flash-exp:free",
+            # "parser": "openrouter/moonshotai/kimi-k2:free",
+            "parser": "openrouter/qwen/qwen3-235b-a22b:free",
         },
     )
 
@@ -521,10 +633,10 @@ if __name__ == "__main__":
     elif run_mode == "test_questions":
         # Example questions are a good way to test the bot's performance on a single question
         EXAMPLE_QUESTIONS = [
-            # "https://www.metaculus.com/questions/578/human-extinction-by-2100/",  # Human Extinction - Binary
-            # "https://www.metaculus.com/questions/14333/age-of-oldest-human-as-of-2100/",  # Age of Oldest Human - Numeric
+            "https://www.metaculus.com/questions/578/human-extinction-by-2100/",  # Human Extinction - Binary
+            "https://www.metaculus.com/questions/14333/age-of-oldest-human-as-of-2100/",  # Age of Oldest Human - Numeric
             "https://www.metaculus.com/questions/22427/number-of-new-leading-ai-labs/",  # Number of New Leading AI Labs - Multiple Choice
-            # "https://www.metaculus.com/c/diffusion-community/38880/how-many-us-labor-strikes-due-to-ai-in-2029/",  # Number of US Labor Strikes Due to AI in 2029 - Discrete
+            "https://www.metaculus.com/c/diffusion-community/38880/how-many-us-labor-strikes-due-to-ai-in-2029/",  # Number of US Labor Strikes Due to AI in 2029 - Discrete
         ]
         template_bot.skip_previously_forecasted_questions = False
         questions = [
