@@ -541,7 +541,7 @@ if __name__ == "__main__":
     template_bot = FallTemplateBot2025(
         research_reports_per_question=1,
         # predictions_per_research_report=5,
-        predictions_per_research_report=1,
+        predictions_per_research_report=7,
         use_research_summary_to_forecast=False,
         enable_summarize_research=False,
         publish_reports_to_metaculus=True,
@@ -592,6 +592,12 @@ if __name__ == "__main__":
             "model5": GeneralLlm(
                # model="openrouter/google/gemini-2.5-flash-preview",
                model="openrouter/google/gemini-2.0-flash-exp:free",
+               temperature=0.3,
+               timeout=40,
+               allowed_tries=2,
+             ),
+            "model6": GeneralLlm(
+               model="openrouter/google/gemini-2.5-pro",
                temperature=0.3,
                timeout=40,
                allowed_tries=2,
