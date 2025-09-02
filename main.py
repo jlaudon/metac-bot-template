@@ -223,7 +223,8 @@ The question from the superforecaster is: {question.question_text}
             )
 
             if isinstance(researcher, GeneralLlm):
-                research = await researcher.invoke(prompt)
+                research = await self.call_asknews_latest(question.question_text)
+                research += await researcher.invoke(prompt)
             elif researcher == "asknews/news-summaries":
                 research = await self.call_asknews_latest(question.question_text)
                 #research = await AskNewsSearcher().get_formatted_news_async(
@@ -599,8 +600,8 @@ if __name__ == "__main__":
             # "summarizer": "openrouter/moonshotai/kimi-k2:free",
             "summarizer": "openrouter/qwen/qwen3-235b-a22b:free",
             # "researcher": "asknews/deep-research/medium-depth",
-            # "researcher": "openrouter/perplexity/sonar-reasoning",
-            "researcher": "asknews/news-summaries",
+            "researcher": "openrouter/perplexity/sonar-reasoning",
+            # "researcher": "asknews/news-summaries",
             # "researcher": "openrouter/moonshotai/kimi-k2:free",
             # "researcher": "openrouter/deepseek/deepseek-r1-0528:free",
             # "parser": "openai/gpt-4o-mini",
