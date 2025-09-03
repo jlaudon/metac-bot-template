@@ -549,7 +549,7 @@ if __name__ == "__main__":
         skip_previously_forecasted_questions=True,
         llms={  # choose your model names or GeneralLlm llms here, otherwise defaults will be chosen for you
             "default": GeneralLlm(
-               model="openrouter/google/gemini-2.5-pro-preview-03-25",
+               model="openrouter/google/gemini-2.5-pro",
                temperature=0.3,
                timeout=40,
                allowed_tries=2,
@@ -562,28 +562,26 @@ if __name__ == "__main__":
                allowed_tries=2,
              ),
             "model1": GeneralLlm(
-               # model="openrouter/anthropic/claude-3.7-sonnet",
-               model="openrouter/deepseek/deepseek-r1-0528:free",
+               model="openrouter/anthropic/claude-sonnet-4",
+               # model="openrouter/deepseek/deepseek-r1-0528:free",
                temperature=0.3,
                timeout=40,
                allowed_tries=2,
              ),
             "model2": GeneralLlm(
                # model="openrouter/deepseek/deepseek-chat-v3-0324",
-               model="openrouter/deepseek/deepseek-chat-v3-0324:free",
+               model="openrouter/google/gemini-2.5-pro",
                temperature=0.3,
                timeout=40,
                allowed_tries=2,
              ),            
             "model3": GeneralLlm(
-               # model="openrouter/x-ai/grok-3-beta",
-               model="openrouter/tngtech/deepseek-r1t2-chimera:free",
+               model="openrouter/x-ai/grok-4",
                temperature=0.3,
                timeout=40,
                allowed_tries=2,
              ),
             "model4": GeneralLlm(
-               # model="openrouter/openai/gpt-4.1",
                model="openrouter/qwen/qwen3-235b-a22b:free",
                temperature=0.3,
                timeout=40,
@@ -591,13 +589,13 @@ if __name__ == "__main__":
              ),
             "model5": GeneralLlm(
                # model="openrouter/google/gemini-2.5-flash-preview",
-               model="openrouter/google/gemini-2.0-flash-exp:free",
+               model="openrouter/openai/gpt-5",
                temperature=0.3,
                timeout=40,
                allowed_tries=2,
              ),
             "model6": GeneralLlm(
-               model="openrouter/google/gemini-2.5-pro",
+               model="openrouter/tngtech/deepseek-r1t2-chimera:free",
                temperature=0.3,
                timeout=40,
                allowed_tries=2,
