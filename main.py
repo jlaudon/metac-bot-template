@@ -124,15 +124,7 @@ class FallTemplateBot2025(ForecastBot):
     )
     _concurrency_limiter = asyncio.Semaphore(_max_concurrent_questions)
     _model_number = 0 # used to iterate through the models
-    _number_of_models = 4 # number of all models we are calling
-    """
-    model0="openrouter/google/gemini-2.5-pro-preview-03-25",
-    model1="openrouter/anthropic/claude-3.7-sonnet",
-    model2="openrouter/deepseek/deepseek-chat-v3-0324",
-    model3="openrouter/x-ai/grok-3-beta",
-    model4="openrouter/openai/gpt-4.1",
-    model5="openrouter/google/gemini-2.5-flash-preview",
-    """
+    _number_of_models = 7 # number of all models we are calling
 
     async def call_asknews_latest(self, question: str) -> str:
       """
@@ -555,7 +547,6 @@ if __name__ == "__main__":
                allowed_tries=2,
              ),
             "model0": GeneralLlm(
-               # model="openrouter/google/gemini-2.5-pro-preview-03-25",
                model="openrouter/moonshotai/kimi-k2:free",
                temperature=0.3,
                timeout=40,
@@ -588,7 +579,6 @@ if __name__ == "__main__":
                allowed_tries=2,
              ),
             "model5": GeneralLlm(
-               # model="openrouter/google/gemini-2.5-flash-preview",
                model="openrouter/openai/gpt-5",
                temperature=0.3,
                timeout=40,
