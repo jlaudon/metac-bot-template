@@ -602,7 +602,8 @@ if __name__ == "__main__":
              ),
             # "summarizer": "openai/gpt-4o-mini",
             # "summarizer": "openrouter/moonshotai/kimi-k2:free",
-            "summarizer": "openrouter/qwen/qwen3-235b-a22b:free",
+            # "summarizer": "openrouter/qwen/qwen3-235b-a22b:free",
+            "summarizer": "openrouter/google/gemini-2.5-flash",
             # "researcher": "asknews/deep-research/medium-depth",
             "researcher": "openrouter/perplexity/sonar-reasoning",
             # "researcher": "asknews/news-summaries",
@@ -611,7 +612,9 @@ if __name__ == "__main__":
             # "parser": "openai/gpt-4o-mini",
             # "parser": "openrouter/google/gemini-2.0-flash-exp:free",
             # "parser": "openrouter/moonshotai/kimi-k2:free",
-            "parser": "openrouter/qwen/qwen3-235b-a22b:free",
+            # "parser": "openrouter/qwen/qwen3-235b-a22b:free",
+            "parser": "openrouter/google/gemini-2.5-flash",
+
         },
     )
 
